@@ -14,7 +14,9 @@ on:
         type: string   
     secrets:
       SONAR_TOKEN:
-        required: true               
+        required: true    
+      SONAR_HOST_URL:
+        required: true    
 jobs:
   Code-Scan:
     runs-on: ubuntu-latest
