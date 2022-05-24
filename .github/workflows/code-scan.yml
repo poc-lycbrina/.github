@@ -1,4 +1,4 @@
-name: oozou sonarqube scan
+name: code scan
 
 on:
   workflow_call:
