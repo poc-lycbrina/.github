@@ -2,15 +2,29 @@ name: oozou sonarqube scan
 
 on:
   workflow_call:
-
+    inputs:
+      SCAN-TYPE:
+        required: true
+        type: string
+        
 jobs:
-  sonarqube:
+  Code-Scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+        
+    - name: IaC KICS scan
+      if: ${{env.SCAN-TYPE  == 'IaC' }}
+      working-directory: ./terraform
+      run: |
+        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
+        sed "s/..\/..\/path\///g" sonarqube-results.json > output.json
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      with:
+        projectBaseDir: terraform
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
