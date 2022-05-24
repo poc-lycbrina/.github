@@ -20,8 +20,6 @@ on:
 jobs:
   Code-Scan:
     runs-on: ubuntu-latest
-    env:
-      SCAN-OUTPUT: Hello
       
     steps:
     - uses: actions/checkout@v2
@@ -38,7 +36,7 @@ jobs:
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        projectBaseDir: terraform
+        projectBaseDir: ${{inputs.SCAN-PATH}}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
