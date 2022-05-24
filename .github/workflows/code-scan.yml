@@ -28,7 +28,7 @@ jobs:
         
     - name: IaC KICS scan
       if: ${{inputs.SCAN-TYPE  == 'IaC' }}
-      working-directory: ./${{inputs.SCAN-PATH}}
+      working-directory: ${{inputs.SCAN-PATH}}
       run: |
         docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
         if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
