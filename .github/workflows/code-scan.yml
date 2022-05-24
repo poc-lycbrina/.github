@@ -6,6 +6,12 @@ on:
       SCAN-TYPE:
         required: true
         type: string
+      SCAN-PATH:
+        required: true
+        type: string  
+      SCAN-OUTPUT:
+        required: false
+        type: string   
     secrets:
       SONAR_TOKEN:
         required: true       
@@ -14,15 +20,19 @@ on:
 jobs:
   Code-Scan:
     runs-on: ubuntu-latest
+    env:
+      SCAN-OUTPUT: Hello
+      
     steps:
     - uses: actions/checkout@v2
         
     - name: IaC KICS scan
       if: ${{inputs.SCAN-TYPE  == 'IaC' }}
-      working-directory: ./terraform
+      working-directory: ./${{inputs.SCAN-PATH}}
       run: |
         docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
-        sed "s/..\/..\/path\///g" sonarqube-results.json > output.json
+        if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
+        sed "s/..\/..\/path\///g" sonarqube-results.json > $output
 
         
     - name: SonarQube Scan
