@@ -15,11 +15,7 @@ on:
       SCAN_EXCLUDE:
         required: false
         type: string            
-    secrets:
-      SONAR_TOKEN:
-        required: true       
-      SONAR_HOST_URL:
-        required: true          
+         
 jobs:
   Code-Scan:
     runs-on: ubuntu-latest
