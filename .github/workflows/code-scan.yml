@@ -38,8 +38,7 @@ jobs:
     - name: set sonarqube args
       run: |
         SCAN-TYPE = ${{inputs.SCAN-TYPE}}
-        echo "${REPORTS-PATHS=SCAN-TYPE//,/.report,}".report >> $GITHUB_ENV
-        echo "${type//,/.report,}".report
+        echo "${SCAN-TYPE//,/.report,}".report >> $GITHUB_ENV
         
     - name: test
       run: |
