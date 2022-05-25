@@ -32,9 +32,10 @@ jobs:
       with:
         projectBaseDir: .
         args: >
-          -Dsonar.projectKey=${{ github.event.repository.name }}
+          -Dsonar.projectKey="${{ github.event.repository.name }}-${{inputs.SCAN_TYPE}}"
           -Dsonar.externalIssuesReportPaths="external_report"
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
+          -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
