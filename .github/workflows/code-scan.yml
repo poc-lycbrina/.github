@@ -5,12 +5,9 @@ on:
     inputs:
       SCAN_TYPE:
         required: true
-        type: string
-      SCAN_BASEDIR:
-        required: false
-        type: string  
+        type: string 
       SCAN_INCLUDE:
-        required: false
+        required: true
         type: string       
       SCAN_EXCLUDE:
         required: false
@@ -25,9 +22,9 @@ jobs:
     
     - name: IaC KICS scan
       if: contains(inputs.SCAN_TYPE, 'IaC')
-      working-directory: ${{inputs.SCAN_BASEDIR}}
+      working-directory: .
       run: |
-        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
+        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --path ${{inputs.SCAN_INCLUDE}} --report-formats "sonarqube" --ignore-on-exit "all" --exclude-paths ${{inputs.SCAN_EXCLUDE}}
         #if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
         sed "s/..\/..\/path\///g" sonarqube-results.json > IaC.report    
         
@@ -49,7 +46,7 @@ jobs:
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        projectBaseDir: ${{inputs.SCAN_BASEDIR}}
+        projectBaseDir: .
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
