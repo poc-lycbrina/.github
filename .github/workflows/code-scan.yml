@@ -24,7 +24,8 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'IaC')
       run: |
         if [ -z ${{inputs.SCAN_EXCLUDE}} ]; then export arg="";  else export arg="--exclude-paths ${{inputs.SCAN_EXCLUDE}}"; fi
-        docker run -w /path -v $PWD:/path checkmarx/kics scan -p "${{inputs.SCAN_INCLUDE}}" --output-name external_report --report-formats "sonarqube" --ignore-on-exit "all" 
+        docker run -w /path -v $PWD:/path checkmarx/kics scan -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" 
+        mv sonarqube-results.json external_report
 
           
     - name: SonarQube Scan
