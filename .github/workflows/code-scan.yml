@@ -27,6 +27,10 @@ jobs:
         docker run -w /path -v $PWD:/path checkmarx/kics scan -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" 
         mv sonarqube-results.json external_report
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: my-artifact
+        path: external_report
           
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
