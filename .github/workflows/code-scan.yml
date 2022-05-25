@@ -37,7 +37,9 @@ jobs:
 
     - name: set sonarqube args
       run: |
-        echo "REPORTS-PATHS=${{inputs.SCAN-TYPE}}//,/.report,.report" >> $GITHUB_ENV
+        SCAN-TYPE = ${{inputs.SCAN-TYPE}}
+        echo "${REPORTS-PATHS=SCAN-TYPE//,/.report,}".report >> $GITHUB_ENV
+        echo "${type//,/.report,}".report
         
     - name: test
       run: |
@@ -51,6 +53,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         args: >
+          -Dsonar.projectKey=${{ github.event.repository.name }}
           -Dsonar.externalIssuesReportPaths=${{env.REPORTS-PATHS}}
           -Dsonar.sources=${{inputs.SCAN-INCLUDE}}
           -Dsonar.exclusions=${{inputs.SCAN-EXCLUDE}}
