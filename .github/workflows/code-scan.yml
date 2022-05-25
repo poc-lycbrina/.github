@@ -27,13 +27,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
         
-    - name: IaC KICS scan
-      if: contains(inputs.SCAN-TYPE, 'IaC')
-      working-directory: ${{inputs.SCAN-BASEDIR}}
-      run: |
-        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
-        #if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
-        sed "s/..\/..\/path\///g" sonarqube-results.json > IaC.report
 
     - name: set sonarqube args
       run: |
@@ -44,15 +37,4 @@ jobs:
       run: |
         echo ${{env.REPORTS-PATHS}}
         
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      with:
-        projectBaseDir: ${{inputs.SCAN-BASEDIR}}
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        args: >
-          -Dsonar.projectKey=${{ github.event.repository.name }}
-          -Dsonar.externalIssuesReportPaths=${{env.REPORTS-PATHS}}
-          -Dsonar.sources=${{inputs.SCAN-INCLUDE}}
-          -Dsonar.exclusions=${{inputs.SCAN-EXCLUDE}}
+
