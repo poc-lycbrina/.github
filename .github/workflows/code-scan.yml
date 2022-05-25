@@ -38,4 +38,4 @@ jobs:
           -Dsonar.projectKey=${{ github.event.repository.name }}
           -Dsonar.externalIssuesReportPaths="external_report"
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
-          -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
+
