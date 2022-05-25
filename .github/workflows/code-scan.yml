@@ -3,16 +3,16 @@ name: code scan
 on:
   workflow_call:
     inputs:
-      SCAN-TYPE:
+      SCAN_TYPE:
         required: true
         type: string
-      SCAN-BASEDIR:
+      SCAN_BASEDIR:
         required: false
         type: string  
-      SCAN-INCLUDE:
+      SCAN_INCLUDE:
         required: false
         type: string       
-      SCAN-EXCLUDE:
+      SCAN_EXCLUDE:
         required: false
         type: string            
     secrets:
@@ -26,18 +26,39 @@ jobs:
       
     steps:
     - uses: actions/checkout@v2
+    
+    - name: IaC KICS scan
+      if: contains(inputs.SCAN-TYPE, 'IaC')
+      working-directory: ${{inputs.SCAN-BASEDIR}}
+      run: |
+        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all"
+        #if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
+        sed "s/..\/..\/path\///g" sonarqube-results.json > IaC.report    
         
 
     - name: set sonarqube args
       run: |
-        echo "SCAN-TYPE=${{inputs.SCAN-TYPE}}"  >> $GITHUB_ENV
-        echo env.SCAN-TYPE
-        echo "${env.SCAN-TYPE//,/.report,}".report
-        echo REPORTS-PATHS="${env.SCAN-TYPE//,/.report,}".report
-        echo REPORTS-PATHS="${env.SCAN-TYPE//,/.report,}".report >> $GITHUB_ENV
+          echo "$SCAN_TYPE"
+          echo "${SCAN_TYPE//,/.report,}".report
+          echo REPORTS_PATHS="${SCAN_TYPE//,/.report,}".report
+          echo REPORTS_PATHS="${SCAN_TYPE//,/.report,}".report >> $GITHUB_ENV
+      env:
+          SCAN_TYPE: ${{inputs.SCAN_TYPE}}
         
     - name: test
       run: |
-        echo ${{env.REPORTS-PATHS}}
+        echo ${{env.REPORTS_PATHS}}
+        echo ${{ github.event.repository.name }}
         
-
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      with:
+        projectBaseDir: ${{inputs.SCAN-BASEDIR}}
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        args: >
+          -Dsonar.projectKey=${{ github.event.repository.name }}
+          -Dsonar.externalIssuesReportPaths=${{env.REPORTS_PATHS}}
+          -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
+          -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
