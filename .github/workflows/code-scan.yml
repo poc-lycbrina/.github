@@ -25,7 +25,7 @@ jobs:
       run: |
         if [ -z ${{inputs.SCAN_EXCLUDE}} ]; then export arg="";  else export arg="--exclude-paths ${{inputs.SCAN_EXCLUDE}}"; fi
         docker run -w /path -v $PWD:/path checkmarx/kics scan -o /path -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" "$arg" 
-        #mv sonarqube-results.json external_report
+        mv sonarqube-results.json external_report
 
     - uses: actions/upload-artifact@v3
       with:
@@ -38,7 +38,7 @@ jobs:
         projectBaseDir: .
         args: >
           -Dsonar.projectKey=${{ github.event.repository.name }}-${{inputs.SCAN_TYPE}}
-          -Dsonar.externalIssuesReportPaths=sonarqube-results.json
+          -Dsonar.externalIssuesReportPaths=external_report
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
           -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
       env:
