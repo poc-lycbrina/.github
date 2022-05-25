@@ -5,7 +5,7 @@ on:
     inputs:
       SCAN_TYPE:
         required: true
-        type: string 
+        type: string         
       SCAN_INCLUDE:
         required: true
         type: string       
@@ -24,24 +24,11 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'IaC')
       working-directory: .
       run: |
-        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --path ${{inputs.SCAN_INCLUDE}} --report-formats "sonarqube" --ignore-on-exit "all" --exclude-paths ${{inputs.SCAN_EXCLUDE}}
+        if [ -z ${{inputs.SCAN_EXCLUDE}} ]; then export arg="";  else export arg="--exclude-paths ${{inputs.SCAN_EXCLUDE}}"; fi
+        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --path ${{inputs.SCAN_INCLUDE}} --report-formats "sonarqube" --ignore-on-exit "all" $arg 
         #if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
-        sed "s/..\/..\/path\///g" sonarqube-results.json > IaC.report    
+        sed "s/..\/..\/path\///g" sonarqube-results.json > external_report
         
-
-    - name: set sonarqube args
-      run: |
-          echo "$SCAN_TYPE"
-          echo "${SCAN_TYPE//,/.report,}".report
-          echo REPORTS_PATHS="${SCAN_TYPE//,/.report,}".report
-          echo REPORTS_PATHS="${SCAN_TYPE//,/.report,}".report >> $GITHUB_ENV
-      env:
-          SCAN_TYPE: ${{inputs.SCAN_TYPE}}
-        
-    - name: test
-      run: |
-        echo ${{env.REPORTS_PATHS}}
-        echo ${{ github.event.repository.name }}
         
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
@@ -51,7 +38,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         args: >
-          -Dsonar.projectKey=${{ github.event.repository.name }}
-          -Dsonar.externalIssuesReportPaths=${{env.REPORTS_PATHS}}
+          -Dsonar.projectKey="${{ github.event.repository.name }}-${{inputs.SCAN_TYPE}}"
+          -Dsonar.externalIssuesReportPaths=external_report
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
           -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
