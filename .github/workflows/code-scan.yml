@@ -20,18 +20,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Ruby scan    
+    - name: get ruby 
       if: contains(inputs.SCAN_TYPE, 'Ruby')
       uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
       with:
         ruby-version: 2.7
         
-    - name: Build and run test
+    - name: Ruby brakeman scan
       if: contains(inputs.SCAN_TYPE, 'Ruby')
       run: |
             gem install brakeman
             if [ -z ${{inputs.SCAN_EXCLUDE}} ]; then export arg="";  else export arg="--skip-files ${{inputs.SCAN_EXCLUDE}}"; fi
-            brakeman -q -f sonar -p "${{inputs.SCAN_INCLUDE}}" -o external_report --no-exit-on-warn --no-exit-on-error ${arg}
+            brakeman -q -f sonar -p . -o external_report --no-exit-on-warn --no-exit-on-error ${arg}
             
     - name: IaC KICS scan
       if: contains(inputs.SCAN_TYPE, 'IaC')
@@ -40,10 +40,6 @@ jobs:
         docker run -w /path -v $PWD:/path checkmarx/kics scan -o /path -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" ${arg} 
         mv sonarqube-results.json external_report
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: my-artifact
-        path: external_report
           
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
