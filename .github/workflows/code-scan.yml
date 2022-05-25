@@ -22,7 +22,7 @@ on:
         required: true          
 jobs:
   Code-Scan:
-    runs-on: oozou-eks-runner
+    runs-on: ubuntu-latest
       
     steps:
     - uses: actions/checkout@v2
