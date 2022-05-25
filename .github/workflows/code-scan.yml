@@ -24,18 +24,18 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'IaC')
       run: |
         if [ -z ${{inputs.SCAN_EXCLUDE}} ]; then export arg="";  else export arg="--exclude-paths ${{inputs.SCAN_EXCLUDE}}"; fi
-        docker run -v $PWD:/path checkmarx/kics scan -p "/path" -o "/path" --report-formats "sonarqube" --ignore-on-exit "all" # --path "/path/${{inputs.SCAN_INCLUDE}}" 
-        #if [ -z ${{inputs.SCAN-OUTPUT}} ]; then export output="iac-output.json";  else export output=${{inputs.SCAN-OUTPUT}}; fi
-        sed "s/..\/..\/path\///g" sonarqube-results.json > external_report
-        
-        
+        docker run -w /path -v $PWD:/path checkmarx/kics scan -p "${{inputs.SCAN_INCLUDE}}" -o . --report-formats "sonarqube" --ignore-on-exit "all" 
+
+          
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
+      with:
+        projectBaseDir: .
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         args: >
-          -Dsonar.projectKey=test #"${{ github.event.repository.name }}-${{inputs.SCAN_TYPE}}"
-          -Dsonar.externalIssuesReportPaths=external_report
+          -Dsonar.projectKey=${{ github.event.repository.name }}
+          -Dsonar.externalIssuesReportPaths="external_report"
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
           -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
