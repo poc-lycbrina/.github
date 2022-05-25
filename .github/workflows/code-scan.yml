@@ -37,7 +37,7 @@ jobs:
 
     - name: set sonarqube args
       run: |
-        export SCAN-TYPE = ${{inputs.SCAN-TYPE}}
+        SCAN-TYPE=${{inputs.SCAN-TYPE}}
         echo "${SCAN-TYPE//,/.report,}".report >> $GITHUB_ENV
         
     - name: test
