@@ -36,6 +36,7 @@ jobs:
     
     - name: Ruby rubocop scan
       if: contains(inputs.SCAN_TYPE, 'Ruby')
+      continue-on-error: true
       run: |
             gem install rubocop
             rubocop  --format json --out rubocop.json --fail-level fatal
@@ -48,7 +49,10 @@ jobs:
         docker run -w /path -v $PWD:/path checkmarx/kics scan -o /path -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" ${arg} 
         mv sonarqube-results.json external_report
 
-          
+    - name: check
+      run: |
+        echo $RUBOCOP_REPORT
+      
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
