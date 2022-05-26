@@ -39,7 +39,8 @@ jobs:
       continue-on-error: true
       run: |
             gem install rubocop
-            rubocop  --format json --out rubocop.json --fail-level fatal
+            rubocop  --format json --out rubocop.json --fail-level fatal || true
+            echo "RUBOCOP_REPORT=rubocop.json" >> $GITHUB_ENV
             
                    
     - name: IaC KICS scan
@@ -51,7 +52,6 @@ jobs:
 
     - name: check
       run: |
-        echo "RUBOCOP_REPORT=rubocop.json" >> $GITHUB_ENV
         echo $RUBOCOP_REPORT
       
     - name: SonarQube Scan
