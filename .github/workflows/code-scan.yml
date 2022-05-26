@@ -50,6 +50,9 @@ jobs:
         docker run -w /path -v $PWD:/path checkmarx/kics scan -o /path -p "${{inputs.SCAN_INCLUDE}}" --report-formats "sonarqube" --ignore-on-exit "all" ${arg} 
         mv sonarqube-results.json external_report
 
+    - name: test
+      run: |
+        echo "${GITHUB_REF##*/}"
       
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
@@ -61,6 +64,7 @@ jobs:
           -Dsonar.sources=${{inputs.SCAN_INCLUDE}}
           -Dsonar.exclusions=${{inputs.SCAN_EXCLUDE}}
           -Dsonar.ruby.rubocop.reportPaths=$RUBOCOP_REPORT
+          -Dsonar.branch.name=${GITHUB_REF##*/}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
