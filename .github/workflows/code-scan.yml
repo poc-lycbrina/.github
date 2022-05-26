@@ -38,7 +38,7 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'Ruby')
       run: |
             gem install rubocop
-            rubocop  --format json --out rubocop.json
+            rubocop  --format json --out rubocop.json --fail-level fatal
             echo "RUBOCOP_REPORT=rubocop.json" >> $GITHUB_ENV
                    
     - name: IaC KICS scan
