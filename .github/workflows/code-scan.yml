@@ -40,7 +40,7 @@ jobs:
       run: |
             gem install rubocop
             rubocop  --format json --out rubocop.json --fail-level fatal
-            echo "RUBOCOP_REPORT=rubocop.json" >> $GITHUB_ENV
+            
                    
     - name: IaC KICS scan
       if: contains(inputs.SCAN_TYPE, 'IaC')
@@ -51,6 +51,7 @@ jobs:
 
     - name: check
       run: |
+        echo "RUBOCOP_REPORT=rubocop.json" >> $GITHUB_ENV
         echo $RUBOCOP_REPORT
       
     - name: SonarQube Scan
