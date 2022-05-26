@@ -54,7 +54,11 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'JavaScript')
       uses: ajinabraham/njsscan-action@master
       with:
-        args: '. --sonarqube  --output external_report || true'
+        args: '. --sonarqube  --output njsscan_report.sonar || true'
+        
+    - name: process njsscan report
+      run: |
+        awk 'BEGIN{ FS=OFS=": " } /\"endColumn\"/{ match($NF, /^[0-9]+/); $NF=($NF-1) substr($NF, RLENGTH+1) }1' njsscan_report.sonar > external_report
       
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
