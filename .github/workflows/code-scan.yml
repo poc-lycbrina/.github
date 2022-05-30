@@ -57,6 +57,7 @@ jobs:
         args: '. --sonarqube  --output njsscan_report.sonar || true'
         
     - name: process njsscan report
+      if: contains(inputs.SCAN_TYPE, 'JavaScript')    
       run: |
         awk 'BEGIN{ FS=OFS=": " } /\"endColumn\"/{ match($NF, /^[0-9]+/); $NF=($NF-1) substr($NF, RLENGTH+1) }1' njsscan_report.sonar > external_report
       
