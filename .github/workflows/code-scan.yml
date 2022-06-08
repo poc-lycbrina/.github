@@ -60,7 +60,14 @@ jobs:
       if: contains(inputs.SCAN_TYPE, 'JavaScript')    
       run: |
         awk 'BEGIN{ FS=OFS=": " } /\"endColumn\"/{ match($NF, /^[0-9]+/); $NF=($NF-1) substr($NF, RLENGTH+1) }1' njsscan_report.sonar > external_report
-      
+
+    - name: Mobile scan
+      if: contains(inputs.SCAN_TYPE, 'Mobile')
+      uses: MobSF/mobsfscan@main
+      with:
+        args: '. --sonarqube -o external_report || true'
+       
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
