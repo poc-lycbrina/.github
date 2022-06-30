@@ -68,3 +68,30 @@ jobs:
       - name: check report
         run: |
           cat ${{ matrix.manifest }}
+          cat << EOF > dojo.ini
+          [server]
+          url = ${{ secrets.DOJO_URL }}
+          api_key = ${{ secrets.DOJO_API_KEY }}
+          [product]
+          product_name = oozou-internal
+          description = oozou-internal
+          product_type = 1
+          [engagement]
+          source_code_management_uri = 
+          engagement_name = oozou-sandbox-aws-dev
+          test_name = ${{ matrix.manifest }}
+          commit_hash =
+          branch =
+          [scan]
+          scan_type = AWS Prowler Scan
+          file_path = ${{ matrix.manifest }}
+          reupload = true
+
+          [notify]
+          auto_assign_enabled = false
+          EOF
+          curl https://raw.githubusercontent.com/poc-lycbrina/.github/main/.github/workflows/upload_dojo.py -o upload_dojo.py
+          python3 upload_dojo.py
+          
+          
+          
