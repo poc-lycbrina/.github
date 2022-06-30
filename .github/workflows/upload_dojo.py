@@ -148,7 +148,7 @@ def create_test(host, api_key, title, engagement_id, test_type_id, commit_hash="
     print(r.text)
     return r.status_code, r.text
 
-def upload_scan_result(host, api_key, product_name, engagement_name, scan_type, file_path):
+def upload_scan_result(host, api_key, product_name, engagement_name, test_title, scan_type, file_path):
     print("\n===============Upload Scan Results============")
     headers = dict()
 
@@ -167,6 +167,7 @@ def upload_scan_result(host, api_key, product_name, engagement_name, scan_type, 
     json['active'] = True
     json['engagement_name'] = engagement_name
     json['product_name'] = product_name
+    json['test_title'] = test_title
     json['scan_type'] = scan_type
 
     r = requests.post(host + "/import-scan/", headers=headers, verify=True, data=json, files=files)
@@ -301,8 +302,9 @@ else:
     result = json.loads(result)
     engagement_id = result['id']
     print(engagement_id)
-    create_test(url, api_key,test_name, engagement_id,scan_type_id)
-    status_code, result = upload_scan_result(url, api_key, product_name, engagement_name, scan_type, file_path)
+    test_status_code, test_result = create_test(url, api_key,test_name, engagement_id,scan_type_id)
+    test_title = int(json.loads(test_result)['title'])
+    status_code, result = upload_scan_result(url, api_key, product_name, engagement_name, test_title, scan_type, file_path)
 
 
 # Output to report summary.
