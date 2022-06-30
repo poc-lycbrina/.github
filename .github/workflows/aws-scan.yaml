@@ -34,7 +34,6 @@ jobs:
           docker run  --rm -v ${PWD}:/prowler/output --name prowler --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN gcr.io/xenon-container-350901/prowler:latest -r us-east-2 -f us-east-2 -M csv,json,html -c check32,check33,check34,check35,check36,check37,check37,check38 || true
           mv *.json report.json
           
-      - name: split report
       - id: set-matrix  
         run: |
           cat << EOF > config.ini
