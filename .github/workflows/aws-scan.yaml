@@ -67,4 +67,4 @@ jobs:
           path: .      
       - name: check report
         run: |
-          ls -al
+          cat ${{ matrix.manifest }}
