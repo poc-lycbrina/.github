@@ -286,7 +286,7 @@ if query_result is not None and reupload_enabled == 'true':
     print("Engagement is created already")
     engagement_id = query_result[0]['id']
     print(engagement_id)
-    test_query_result = find_test(host, api_key, test_name, engagement_id)
+    test_query_result = find_test(url, api_key, test_name, engagement_id)
     if (test_query_result != None):
         print("test is created already")
         test_id = test_query_result[0]['id']
