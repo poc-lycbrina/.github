@@ -299,7 +299,7 @@ else:
     engagement_id = result['id']
     print(engagement_id)
     create_test(url, api_key,test_name, engagement_id,scan_type_id)
-    #status_code, result = upload_scan_result(url, api_key, product_name, engagement_name, scan_type, file_path)
+    status_code, result = upload_scan_result(url, api_key, product_name, engagement_name, scan_type, file_path)
 
 
 # Output to report summary.
