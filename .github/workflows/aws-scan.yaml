@@ -35,6 +35,7 @@ jobs:
           mv *.json report.json
           
       - name: split report
+      - id: set-matrix  
         run: |
           cat << EOF > config.ini
           [report]
