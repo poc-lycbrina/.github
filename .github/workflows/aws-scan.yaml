@@ -19,6 +19,8 @@ permissions:
 jobs:
   aws-security-scan:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -29,10 +31,41 @@ jobs:
       - name: scan
         continue-on-error: true
         run: |
-          docker run  --rm -v ${PWD}:/prowler/output --name prowler --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN gcr.io/xenon-container-350901/prowler:latest -r us-east-2 -f us-east-2 -M csv,json,html -c check32 || true
+          docker run  --rm -v ${PWD}:/prowler/output --name prowler --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY --env AWS_SESSION_TOKEN gcr.io/xenon-container-350901/prowler:latest -r us-east-2 -f us-east-2 -M csv,json,html -c check32,check33,check34,check35,check36,check37,check37,check38 || true
+          mv *.json report.json
           
+      - name: split report
+        run: |
+          cat << EOF > config.ini
+          [report]
+          report_path = report.json
+          group_key = Service
+          EOF
+          curl https://raw.githubusercontent.com/poc-lycbrina/.github/main/.github/workflows/prowler_report_split.py -o prowler_report_split.py
+          python prowler_report_split.py -c config.ini
+          echo "::set-output name=matrix::$( ls *.json | jq -R -s -c 'split("\n")[:-1]')"s
+          rm -rf report.json 
+
       - uses: actions/upload-artifact@v3
         with:
           name: report
           path: |
             ./*.json
+
+  defectdojo-upload:
+    needs: aws-security-scan
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        manifest: ${{ fromJson(needs.ubuntu-latest.outputs.matrix) }}  
+              
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: report
+          path: .      
+      - name: check report
+        run: |
+          ls -al
+          path: main
