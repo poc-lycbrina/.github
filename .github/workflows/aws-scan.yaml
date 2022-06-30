@@ -58,7 +58,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        manifest: ${{ fromJson(needs.ubuntu-latest.outputs.matrix) }}  
+        manifest: ${{ fromJson(needs.aws-security-scan.outputs.matrix) }}  
               
     steps:
       - uses: actions/download-artifact@v3
