@@ -68,7 +68,7 @@ jobs:
       - name: check report
         run: |
           cat ${{ matrix.manifest }}
-          cat << EOF > dojo.ini
+          cat << EOF > dojo-env.ini
           [server]
           url = ${{ secrets.DOJO_URL }}
           api_key = ${{ secrets.DOJO_API_KEY }}
