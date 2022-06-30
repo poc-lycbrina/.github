@@ -43,8 +43,9 @@ jobs:
           EOF
           curl https://raw.githubusercontent.com/poc-lycbrina/.github/main/.github/workflows/prowler_report_split.py -o prowler_report_split.py
           python prowler_report_split.py -c config.ini
-          echo "::set-output name=matrix::$( ls *.json | jq -R -s -c 'split("\n")[:-1]')"s
           rm -rf report.json 
+          ls *.json > summary
+          echo "::set-output name=matrix::$( cat summary | jq -R -s -c 'split("\n")[:-1]')"s
 
       - uses: actions/upload-artifact@v3
         with:
