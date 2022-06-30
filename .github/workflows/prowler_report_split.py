@@ -2,6 +2,8 @@ import json
 from itertools import groupby
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader
+import sys, getopt
+import configparser
 
 def main(argv):
     try:
@@ -46,13 +48,19 @@ def main(argv):
     #
     import os
 
+    print(groups)
     for key, group in groups:
         sub_report_name=str(key) + '.json'
         sub_report = open(sub_report_name, 'a')
+        print(group)
         for content in group:
+            print(content)
             if(content['Status']=='FAIL'):
                 sub_report.writelines(json.dumps(content)+"\n")
-        file2.close()
+        sub_report.close()
         if os.stat(sub_report_name).st_size == 0:
             os.remove(sub_report_name)
-    
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
