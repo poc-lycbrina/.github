@@ -303,8 +303,8 @@ else:
     engagement_id = result['id']
     print(engagement_id)
     test_status_code, test_result = create_test(url, api_key,test_name, engagement_id,scan_type_id)
-    test_title = str(json.loads(test_result)['title'])
-    status_code, result = upload_scan_result(url, api_key, product_name, engagement_name, test_title, scan_type, file_path)
+    test_id = int(json.loads(test_result)['id'])
+    status_code, result = reimport_scan_result(url, api_key, product_name, engagement_name, test_id, scan_type, file_path)
 
 
 # Output to report summary.
