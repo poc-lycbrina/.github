@@ -75,6 +75,7 @@ jobs:
           path: .      
       - name: check report
         run: |
+          cat ${{ matrix.manifest }}
           export test_name=`basename ${{ matrix.manifest }} .json`
           cat << EOF > dojo-env.ini
           [server]
