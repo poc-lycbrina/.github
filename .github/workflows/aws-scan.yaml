@@ -62,7 +62,7 @@ jobs:
             
   defectdojo-upload:
     needs: aws-security-scan
-    runs-on: oozou-eks-runner
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
