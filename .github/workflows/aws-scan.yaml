@@ -29,7 +29,11 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:       
           role-to-assume: ${{ inputs.AWS_ROLE }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
           
       - name: scan
         continue-on-error: true
