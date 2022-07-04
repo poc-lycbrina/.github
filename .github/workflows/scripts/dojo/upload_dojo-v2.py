@@ -1,4 +1,4 @@
-import json, requests, configparser
+import json, requests, configparser, sys
 from datetime import datetime
 
 class Defectdojo:
@@ -60,6 +60,26 @@ class Engagement(Defectdojo):
         print("=======Creating A new Engagement========")
         return super().post(json)
 
+class Test(Defectdojo):
+    def __init__(self, url, api_key):
+        super().__init__(url + "/tests/", api_key)
+
+    def create(self,title, engagement_id, test_type_id, commit_hash="", branch_tag="", source_code_management_uri="", lead=""):
+        json = dict()
+        json['title'] = str(title)
+        json['engagement'] = str(engagement_id)
+
+        json['target_start'] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        json['target_end'] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        json['commit_hash'] = str(commit_hash)
+        json['branch_tag'] = str(branch_tag)
+        json['test_type'] = test_type_id
+        json['source_code_management_uri'] = source_code_management_uri
+
+        json['lead'] = lead
+        print("=======Creating A new Test========")
+        return super().post(json)
+
 class Product(Defectdojo):
     def __init__(self, url, api_key):
         super().__init__(url + "/products/", api_key)
@@ -77,7 +97,7 @@ class ScanResult(Defectdojo):
     def __init__(self, url, api_key):
         super().__init__(url, api_key)
 
-    def prepare_data(self, product_name, engagement_name, scan_type):
+    def prepare_data(self, product_name, engagement_name, test_id,scan_type):
         json = dict()
         json['minimum_severity'] = "Info"
         json['scan_date'] = datetime.now().strftime("%Y-%m-%d")
@@ -87,22 +107,28 @@ class ScanResult(Defectdojo):
         json['engagement_name'] = engagement_name
         json['product_name'] = product_name
         json['scan_type'] = scan_type
+        json['test'] = test_id
         return json
 
-    def upload(self, product_name, engagement_name, scan_type, file_path):
+    def upload(self, product_name, engagement_name, scan_type, test_id, file_path):
         self.URL = self.URL + "/import-scan/"
-        x_json = self.prepare_data(product_name, engagement_name, scan_type)
+        x_json = self.prepare_data(product_name, engagement_name, test_id, scan_type)
         return self.post(x_json, x_file=file_path)
 
-    def reupload(self, product_name, engagement_name, scan_type, file_path):
+    def reupload(self, product_name, engagement_name, test_id, scan_type, file_path):
         self.URL = self.URL + "/reimport-scan/"
-        x_json = self.prepare_data(product_name, engagement_name, scan_type)
+        x_json = self.prepare_data(product_name, engagement_name,test_id, scan_type)
         return super().post(x_json, x_file=file_path)
 
 
 class User(Defectdojo):
     def __init__(self,url,api_key):
         super().__init__(url + "/users/", api_key)
+
+class Test_types(Defectdojo):
+    def __init__(self,url,api_key):
+        super().__init__(url + "/test_types/", api_key)
+
 
 
 class ConfigData:
@@ -121,9 +147,12 @@ class ConfigData:
         self.engagement_name = config['engagement']['engagement_name']
         self.commit_hash = config['engagement']['commit_hash']
         self.branch = config['engagement']['branch']
+        self.test_name = config['engagement']['test_name']
 
         self.scan_type = config['scan']['scan_type']
         self.file_path = config['scan']['file_path']
+
+        
 
         try:
             self.reupload_enabled = config['scan']['reupload']
@@ -144,7 +173,9 @@ if __name__ == "__main__":
     #Connectors
     product_con = Product(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
     engagement_con = Engagement(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
+    test_con = Test(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
     user_con = User(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
+    test_types_con = Test_types(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
     scan_result_con = ScanResult(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
 
     # find product
@@ -176,6 +207,16 @@ if __name__ == "__main__":
         user_id = 1
     print("User id is " + str(user_id))
 
+    # Find test type id
+    print("=======Find Test_types=============")
+    test_types_con = Test_types(getattr(config_data, 'url'),getattr(config_data, 'api_key'))
+    test_types_query_result = test_types_con.get("?name=" + str(getattr(config_data,'scan_type')))
+    test_type_id  = None
+    if test_types_query_result is not None:
+        test_type_id = test_types_query_result[0]['id']
+    else:
+        sys.exit("scan_type: ${scan_type} is not exist")
+
     # Find engagement
     print("=======Find Engagement=======")
     engagement_id = None
@@ -188,11 +229,22 @@ if __name__ == "__main__":
         engagement_id = query_result[0]['id']
         print("Engagement id is " + str(engagement_id))
 
+        test_query_string = "?title=" + getattr(config_data, 'test_name') + '&engagement=' + str(engagement_id)
+        test_query_result = test_con.get(test_query_string)
+        if (test_query_result != None):
+            print("test is created already")
+            test_id = test_query_result[0]['id']
+        else:
+            print("======create new test=========")
+            test_status_code, test_result = test_con.create(getattr(config_data,'test_name'), engagement_id,test_type_id)
+            test_id = int(json.loads(test_result)['id'])
+
         # reimporting
         print("======ReUploading new scan result=========")
         status, text = scan_result_con.reupload(
             getattr(config_data,'product_name'),
             getattr(config_data, 'engagement_name'),
+            test_id,
             getattr(config_data, 'scan_type'),
             getattr(config_data, 'file_path')
         )
@@ -200,6 +252,7 @@ if __name__ == "__main__":
 
     else:
         print("Engagement doesn't exists")
+        print("=======Create Engagement=======")
         status, text = engagement_con.create(
             getattr(config_data,'engagement_name'),
             product_id,
@@ -211,27 +264,32 @@ if __name__ == "__main__":
         engagement_id = json.loads(text)['id']
         print("Engagement id is " + str(engagement_id))
 
+        print("======create new test=========")
+        test_status_code, test_result = test_con.create(getattr(config_data,'test_name'), engagement_id,test_type_id)
+        test_id = int(json.loads(test_result)['id'])
+
         # import the new
         print("======Uploading new scan result=========")
-        status, text = scan_result_con.upload(
+        status, text = scan_result_con.reupload(
             getattr(config_data,'product_name'),
             getattr(config_data, 'engagement_name'),
+            test_id,
             getattr(config_data, 'scan_type'),
             getattr(config_data, 'file_path')
         )
         print("upload status is " + str(status))
 
-    print("=====Output the result to CSV=====")
-    data = open(getattr(config_data, 'file_path'), "r")
-    issue_count = len(json.load(data))
-    print(issue_count)
+    # print("=====Output the result to CSV=====")
+    # data = open(getattr(config_data, 'file_path'), "r")
+    # issue_count = len(json.load(data))
+    # print(issue_count)
 
-    report_summary = open("output.csv", "a")
-    report_summary.write("repo,count,owner,dojo_product_id,dojo_engagement_id\n")
-    source_code_management_uri = getattr(config_data, 'source_code_management_uri').split("blob", 1)[0]
-    report_summary.write(
-        str(getattr(config_data, 'source_code_management_uri')) + "," + str(issue_count) + ","
-        + str(getattr(config_data, 'email')) + ","
-        + str(product_id) + "," + str(engagement_id) + "\n")
-    report_summary.close()
-    print("=====Done Output the result to CSV=====")
+    # report_summary = open("output.csv", "a")
+    # report_summary.write("repo,count,owner,dojo_product_id,dojo_engagement_id\n")
+    # source_code_management_uri = getattr(config_data, 'source_code_management_uri').split("blob", 1)[0]
+    # report_summary.write(
+    #     str(getattr(config_data, 'source_code_management_uri')) + "," + str(issue_count) + ","
+    #     + str(getattr(config_data, 'email')) + ","
+    #     + str(product_id) + "," + str(engagement_id) + "\n")
+    # report_summary.close()
+    # print("=====Done Output the result to CSV=====")
