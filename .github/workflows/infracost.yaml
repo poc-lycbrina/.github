@@ -2,6 +2,9 @@ name: Infracost Workflow
 
 on:
   workflow_call:
+    secrets:
+      INFRACOST_API_KEY:
+        required: true 
     inputs:
       CONFLUENCE_USERNAME:
         required: true
