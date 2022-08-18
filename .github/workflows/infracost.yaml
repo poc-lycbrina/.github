@@ -62,7 +62,7 @@ jobs:
           ls -al
         
       - name: post result to conflunece
-        working-directory: script/.github/workflows/scripts
+        working-directory: script/.github/workflows/scripts/infracost
         run: |
             cat << EOF > .env
             LOG_LEVEL=INFO
