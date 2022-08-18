@@ -1,0 +1,70 @@
+name: Infracost Workflow
+
+on:
+  workflow_call:
+    inputs:
+      CONFLUENCE_USERNAME:
+        required: true
+        type: string         
+      CONFLUENCE_API_TOKEN:
+        required: true
+        type: string       
+      CONFLUENCE_PAGE_ID:
+        required: true
+        type: string  
+      CONFLUENCE_PAGE_TITLE:
+        required: true
+        type: string 
+      INFRACOST_API_KEY:
+        required: true
+        type: string 
+      INFRACOST_CONFIG_FILE:
+        required: true
+        type: string 
+        
+permissions:
+      id-token: write
+      contents: read    # This is required for actions/checkout
+jobs:
+  infracost:
+    runs-on: ubuntu-latest
+    steps:
+    
+      # Checkout the base branch of the pull request (e.g. main/master).
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          path: main
+          
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        # See https://github.com/infracost/actions/tree/master/setup for other inputs
+        # If you can't use this action, see Docker images in https://infracost.io/cicd
+        with:
+          api-key: ${{ inputs.INFRACOST_API_KEY }}
+
+      - name: Generate Infracost cost estimate
+        working-directory: examples
+        run: |
+            infracost breakdown --config-file ${{ inputs.INFRACOST_CONFIG_FILE }} --format json --out-file output.json
+ 
+      - name: Checkout shared repo
+        continue-on-error: true
+        run: |
+          git clone https://github.com/poc-lycbrina script
+        
+      - name: post result to conflunece
+        working-directory: script/.github/scripts
+        run: |
+            cat << EOF > .env
+            LOG_LEVEL=INFO
+            DATA_FILE= ${GITHUB_WORKSPACE}/main/output.json
+            URL=https://lycbrian.atlassian.net/
+            USERNAME=${{ inputs.CONFLUENCE_USERNAME }} 
+            API_TOKEN=${{ inputs.CONFLUENCE_API_TOKEN }} 
+            PAGE_ID=${{ inputs.CONFLUENCE_PAGE_ID }} 
+            PAGE_TITLE=${{ inputs.CONFLUENCE_PAGE_TITLE }} 
+            EOF
+            pip3 install -r requirements.txt
+            python3 infracost.py
+  
