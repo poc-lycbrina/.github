@@ -18,9 +18,6 @@ on:
       CONFLUENCE_PAGE_TITLE:
         required: true
         type: string 
-      INFRACOST_API_KEY:
-        required: true
-        type: string 
       INFRACOST_ARTIFACT:
         required: true
         type: string 
