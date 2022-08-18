@@ -57,7 +57,7 @@ jobs:
       - name: Checkout shared repo
         continue-on-error: true
         run: |
-          git clone https://github.com/poc-lycbrina script
+          git clone https://github.com/poc-lycbrina/.github script
         
       - name: post result to conflunece
         working-directory: script/.github/scripts
