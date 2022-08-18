@@ -51,8 +51,8 @@ jobs:
         run: |
             pwd
             ls -al
-            ls -al ${GITHUB_WORKSPACE}/main/output.json
             infracost breakdown --config-file infracost.yml --format json --out-file output.json
+            ls -al ${GITHUB_WORKSPACE}/output.json
  
       - name: Checkout shared repo
         continue-on-error: true
@@ -64,7 +64,7 @@ jobs:
         run: |
             cat << EOF > .env
             LOG_LEVEL=INFO
-            DATA_FILE= ${GITHUB_WORKSPACE}/main/output.json
+            DATA_FILE= ${GITHUB_WORKSPACE}/output.json
             URL=https://lycbrian.atlassian.net/
             USERNAME=${{ inputs.CONFLUENCE_USERNAME }} 
             API_TOKEN=${{ inputs.CONFLUENCE_API_TOKEN }} 
