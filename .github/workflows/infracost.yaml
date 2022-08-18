@@ -18,7 +18,7 @@ on:
       INFRACOST_API_KEY:
         required: true
         type: string 
-      INFRACOST_CONFIG_FILE:
+      INFRACOST_ARTIFACT:
         required: true
         type: string 
         
@@ -35,7 +35,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: main
-          
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.INFRACOST_ARTIFACT }} 
+    
       - name: Setup Infracost
         uses: infracost/actions/setup@v2
         # See https://github.com/infracost/actions/tree/master/setup for other inputs
@@ -67,4 +71,13 @@ jobs:
             EOF
             pip3 install -r requirements.txt
             python3 infracost.py
-  
+  scan:
+    uses: poc-lycbrina/.github/.github/workflows/infracost.yaml@main
+    with:
+        AWS_ROLE : arn:aws:iam::xxxxxxx:role/oozou-internal-devops-github-action-oidc-security-scan-role
+        CONFLUENCE_USERNAME: lyc1986830@163.com
+        CONFLUENCE_API_TOKEN: Y8ze4Vwy0n8JPxLZZXkR78A0
+        CONFLUENCE_PAGE_ID: 13860865
+        CONFLUENCE_PAGE_TITLE: infracost-auto
+        INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        INFRACOST_ARTIFACT: infracost-artifact  
