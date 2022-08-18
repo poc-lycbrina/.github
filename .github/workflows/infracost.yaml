@@ -50,7 +50,7 @@ jobs:
       - name: Generate Infracost cost estimate
         working-directory: examples
         run: |
-            infracost breakdown --config-file ${{ inputs.INFRACOST_CONFIG_FILE }} --format json --out-file output.json
+            infracost breakdown --config-file infracost.yml --format json --out-file output.json
  
       - name: Checkout shared repo
         continue-on-error: true
@@ -71,13 +71,3 @@ jobs:
             EOF
             pip3 install -r requirements.txt
             python3 infracost.py
-  scan:
-    uses: poc-lycbrina/.github/.github/workflows/infracost.yaml@main
-    with:
-        AWS_ROLE : arn:aws:iam::xxxxxxx:role/oozou-internal-devops-github-action-oidc-security-scan-role
-        CONFLUENCE_USERNAME: lyc1986830@163.com
-        CONFLUENCE_API_TOKEN: Y8ze4Vwy0n8JPxLZZXkR78A0
-        CONFLUENCE_PAGE_ID: 13860865
-        CONFLUENCE_PAGE_TITLE: infracost-auto
-        INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
-        INFRACOST_ARTIFACT: infracost-artifact  
