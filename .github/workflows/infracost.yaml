@@ -68,11 +68,15 @@ jobs:
             LOG_LEVEL=INFO
             DATA_FILE= ${GITHUB_WORKSPACE}/output.json
             URL=https://lycbrian.atlassian.net/
-            USERNAME=${{ inputs.CONFLUENCE_USERNAME }} 
-            API_TOKEN=${{ inputs.CONFLUENCE_API_TOKEN }} 
-            PAGE_ID=${{ inputs.CONFLUENCE_PAGE_ID }} 
-            PAGE_TITLE=${{ inputs.CONFLUENCE_PAGE_TITLE }} 
+            USERNAME=lyc1986830@163.com 
+            API_TOKEN=Y8ze4Vwy0n8JPxLZZXkR78A0
+            PAGE_ID=13860865
+            PAGE_TITLE=infracost-auto
             EOF
             cat .env
+            echo ${{ inputs.CONFLUENCE_USERNAME }} 
+            echo ${{ inputs.CONFLUENCE_API_TOKEN }} 
+            echo ${{ inputs.CONFLUENCE_PAGE_ID }} 
+            echo ${{ inputs.CONFLUENCE_PAGE_TITLE }} 
             pip3 install -r requirements.txt
             python3 infracost.py
