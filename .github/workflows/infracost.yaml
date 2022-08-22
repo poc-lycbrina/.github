@@ -66,8 +66,8 @@ jobs:
             LOG_LEVEL=INFO
             DATA_FILE= ${GITHUB_WORKSPACE}/output.json
             URL=https://lycbrian.atlassian.net/
-            USERNAME=${{ inputs.CONFLUENCE_USERNAME }} 
-            API_TOKEN=${{ inputs.CONFLUENCE_API_TOKEN }} 
+            USERNAME=${{ secrets.CONFLUENCE_USERNAME }} 
+            API_TOKEN=${{ secrets.CONFLUENCE_API_TOKEN }} 
             PAGE_ID=${{ inputs.CONFLUENCE_PAGE_ID }} 
             PAGE_TITLE=${{ inputs.CONFLUENCE_PAGE_TITLE }} 
             EOF
