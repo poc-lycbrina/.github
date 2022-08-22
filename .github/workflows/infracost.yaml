@@ -49,6 +49,7 @@ jobs:
         run: |
             pwd
             ls -al
+            infracost breakdown --config-file infracost.yml
             infracost breakdown --config-file infracost.yml --format json --out-file output.json
             ls -al ${GITHUB_WORKSPACE}/output.json
  
