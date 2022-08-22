@@ -49,6 +49,8 @@ jobs:
         run: |
             pwd
             ls -al
+            export REGION=us-east-2
+            for json in */plan.json; do echo "$( jq '.configuration.provider_config.aws.expressions.region={"constant_value":"'$REGION'"}' $json )" > $json; done
             infracost breakdown --config-file infracost.yml
             infracost breakdown --config-file infracost.yml --format json --out-file output.json
             ls -al ${GITHUB_WORKSPACE}/output.json
