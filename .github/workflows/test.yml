@@ -1,0 +1,17 @@
+name: test Workflow
+
+on:
+  workflow_call:
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: test
+      run: |
+        echo ${{ github.event.repository.name }}
+        echo ${{ github.event.repository.payload }}
+        echo ${GITHUB_REF#refs/heads/}
